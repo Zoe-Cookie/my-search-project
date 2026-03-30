@@ -3,8 +3,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # 如果你的主分支叫做 master，請改成 master
+      - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -15,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # 使用穩定的 Node 版本
+          node-version: 24
 
       - name: Install Dependencies
         run: npm install
@@ -29,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Vite 打包後的資料夾名稱
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
