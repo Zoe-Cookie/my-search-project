@@ -1,10 +1,13 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { SEARCH_DATASET } from './data/hw2_search_dataset.js'
 
 const searchQuery = ref('')
 const items = ref(SEARCH_DATASET)
 const sortType = ref('title')
+
+const currentPage = ref(1)
+const pageSize = 10
 
 const processedItems = computed(() => {
   let result = items.value
@@ -26,6 +29,20 @@ const processedItems = computed(() => {
     }
     return 0
   })
+})
+
+const paginatedItems = computed(() => {
+  const startIndex = (currentPage.value - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  return processedItems.value.slice(startIndex, endIndex)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(processedItems.value.length / pageSize) || 1
+})
+
+watch([searchQuery, sortType], () => {
+  currentPage.value = 1
 })
 </script>
 
@@ -50,19 +67,22 @@ const processedItems = computed(() => {
     </div>
 
     <ul class="item-list">
-      <li v-for="item in processedItems" :key="item.id">
-        <span>{{ item.url_path }}</span>
-        <span>{{ item.url }}</span>
-        <span>{{ item.title }}</span>
-        <span>{{ item.text }}</span>
-        <span>{{ item.created_at }}</span>
-        <span>{{ item.popularity }}</span>
-      </li>
-
-      <li v-if="processedItems.length === 0">
-        😢
+      <li v-for="item in paginatedItems" :key="item.id">
+        <span class="small">{{ item.url_path || '未知路徑' }}</span>
+        <span class="small">{{ item.url || '無網址' }}</span>
+        <a v-bind:href="item.url" target="_blank">{{ item.title || '無標題' }}</a>
+        <span class="description">{{ item.text || '暫無內容提供。' }}</span>
+        <span class="small">{{ item.created_at || '未知時間' }}</span>
+        <span class="small">{{ item.popularity || 0 }}</span>
       </li>
     </ul>
+    <div class="pagination" v-if="processedItems.length > 0">
+      <button :disabled="currentPage === 1" @click="currentPage--">上一頁</button>
+
+      <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 頁</span>
+
+      <button :disabled="currentPage === totalPages" @click="currentPage++">下一頁</button>
+    </div>
   </div>
 </template>
 
@@ -81,7 +101,7 @@ const processedItems = computed(() => {
 }
 
 h1 {
-  color: rgb(60, 92, 134);
+  color: #3c5c86;
 }
 
 p {
@@ -98,16 +118,18 @@ p {
 
 input {
   border: none;
-  background-color: #44444e;
+  background-color: #292929;
   padding: 15px;
   width: 500px;
   border-radius: 30px;
   font-size: larger;
-  transition: background-color 0.3s ease;
 }
 
-input:hover {
-  background-color: #27272d;
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
 }
 
 .list-header {
@@ -132,7 +154,7 @@ input:hover {
 }
 
 select option {
-  background-color:#44444e;
+  background-color: #44444e;
   color: white;
   font-size: 1rem;
 }
@@ -144,38 +166,111 @@ select option {
 li {
   width: calc(80% - 20px);
   padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   gap: 8px;
   text-align: left;
 }
 
-li span:nth-child(3) {
-  font-size: 1.2rem;
+.small {
+  font-size: 0.8rem;
+}
+
+li a {
+  font-size: 1.4rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: #3c5c86;
+  text-decoration: none;
+  align-self: flex-start;
 }
 
-li span:nth-child(4) {
+li a:hover {
+  text-decoration: underline;
+  color: #5683bf;
+}
+
+.description {
   color: #666;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
-  overflow: hidden;
 }
 
-li span {
+li span,
+a {
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid white;
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #3c5c86;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.pagination button:disabled {
+  background-color: #555557;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* ==========
+   RWD 手機板
+   ========== */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 5px;
+  }
+
+  .top-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'title avatar'
+      'search search';
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #555557;
+  }
+
+  h1 {
+    grid-area: title;
+  }
+
+  .search-box {
+    grid-area: search;
+    padding-left: 0;
+    display: flex;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .avatar {
+    grid-area: avatar;
+  }
+
+  li {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+  }
 }
 </style>
