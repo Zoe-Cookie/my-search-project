@@ -59,8 +59,8 @@ const processedItems = computed(() => {
         <span>{{ item.popularity }}</span>
       </li>
 
-      <li v-if="processedItems.length === 0" style="text-align: center; color: #888">
-        找不到相關內容 😢
+      <li v-if="processedItems.length === 0">
+        😢
       </li>
     </ul>
   </div>
@@ -98,7 +98,7 @@ p {
 
 input {
   border: none;
-  background-color: #555557;
+  background-color: #44444e;
   padding: 15px;
   width: 500px;
   border-radius: 30px;
@@ -107,7 +107,7 @@ input {
 }
 
 input:hover {
-  background-color: #3d3d3f;
+  background-color: #27272d;
 }
 
 .list-header {
@@ -131,6 +131,12 @@ input:hover {
   cursor: pointer;
 }
 
+select option {
+  background-color:#44444e;
+  color: white;
+  font-size: 1rem;
+}
+
 .item-list {
   padding: 0;
 }
@@ -138,7 +144,7 @@ input:hover {
 li {
   width: calc(80% - 20px);
   padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 淡淡的陰影 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 8px;
