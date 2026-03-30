@@ -44,6 +44,15 @@ const totalPages = computed(() => {
 watch([searchQuery, sortType], () => {
   currentPage.value = 1
 })
+
+const changePage = (newPage) => {
+  currentPage.value = newPage;
+  
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
 </script>
 
 <template>
@@ -77,11 +86,13 @@ watch([searchQuery, sortType], () => {
       </li>
     </ul>
     <div class="pagination" v-if="processedItems.length > 0">
-      <button :disabled="currentPage === 1" @click="currentPage--">上一頁</button>
+      <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一頁</button>
 
       <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 頁</span>
 
-      <button :disabled="currentPage === totalPages" @click="currentPage++">下一頁</button>
+      <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+        下一頁
+      </button>
     </div>
   </div>
 </template>
