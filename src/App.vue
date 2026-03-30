@@ -117,8 +117,8 @@ p {
 }
 
 input {
-  border: none;
-  background-color: #292929;
+  border: 1px solid #555557;
+  background-color: transparent;
   padding: 15px;
   width: 500px;
   border-radius: 30px;
